@@ -47,10 +47,48 @@ z-index: -1;
 pointer-events: none;
 }
 
+.titulo-container{
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  gap:5px;  /* antes 15px */
+  margin-top:-10px; /* reduce espacio superior */
+}
+
+/* Bloque nombre + cumple */
+.bloque-texto{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start; /* alineado a la izquierda */
+}
+
+/* Número */
+.numero6{
+  width:110px;
+  height:auto;
+  margin-left: -110px;  /* prueba -20, -30, -50 */
+
+  transform: translateY(-110px); 
+  
+}
+
+/* CUMPLE */
+.cumple{
+  font-family:'Luckiest Guy', cursive;
+  font-size:22px;
+  color:#111;
+  margin-top:-8px;
+  margin-left: 158px;  /* prueba -20, -30, -50 */
+  margin-bottom:10px; /* reduce espacio con el título */
+  letter-spacing:2px;
+}
+
 .nombre-corazon{
 font-family: 'Luckiest Guy', cursive;
 font-size:54px;
 color:#ff1493;
+margin-top:8px;
+margin-left: 15px;  /* prueba -20, -30, -50 */
 
 -webkit-text-stroke: 0.4px white;
 }
@@ -93,6 +131,7 @@ width: 350px; /* Ajusta el tamaño aquí */
 max-width: 80%;
 height: auto;
 display: block;
+margin-bottom: -10px;  /* ajusta entre -5 y -20 */
 margin: 0 auto;
 filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.2));
 /* Si quieres que flote como pikachu, descomenta la línea de abajo */
@@ -173,6 +212,7 @@ position:relative;
 .logo{
 width:250px;
 margin-top:-60px;
+margin-left: -20px;  /* prueba -20, -30, -50 */
 z-index:10;
 position:relative;
 filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
@@ -185,16 +225,22 @@ padding:0px 20px 60px 20px;
 
 /* CUENTA REGRESIVA */
 .countdown{
-display:flex;
-justify-content:center;
-gap:3px;
-flex-wrap:wrap;
-align-items:center;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:3px;
+  flex-wrap:nowrap;   /* 👈 importante */
 }
+
+.countdown-title{
+margin:15px 0px 7px 0px;
+color:white;
+font-size:14px;
+}
+
 
 .time-group{
 text-align:center;
-margin:0 3px;
 }
 
 .digits{
@@ -207,8 +253,8 @@ justify-content:center;
 background: rgba(255,255,255,0.90);
 backdrop-filter: blur(5px);
 -webkit-backdrop-filter: blur(5px);
-width:30px;
-height:55px;
+width:26px;
+height:50px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -217,12 +263,13 @@ line-height:1;
 font-weight:bold;
 border-radius:8px;
 color:#c2185b;
-box-shadow:0 8px 30px rgba(0,0,0,0.3);
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
 }
 
 .time-group p{
-margin-top:10px;
+margin-top:6px;
 color:white;
+font-size:14px;
 }
 
 @keyframes blink{
@@ -231,13 +278,12 @@ color:white;
 }
 
 .separator{
-font-size:40px;
+font-size:30px;
 font-weight:bold;
 color:white;
 display:flex;
 align-items:center;
 justify-content:center;
-margin:0 2px;
 animation: blink 1s infinite;
 }
 
@@ -311,7 +357,7 @@ color:#ccc;
 
 .pokebola{
   position: fixed;
-  width: 60px;
+  width: 40px;
   opacity: 0.9;
   animation: girar 6s linear infinite, flotar 4s ease-in-out infinite;
   pointer-events: none;
@@ -366,11 +412,15 @@ color:#ccc;
 
 <img src="imagen.png" class="imagen-top" alt="Decoración">
 
-<h1 class="nombre-corazon">
-  Khalees<span class="i-corazon">i</span>
-</h1>
+<div class="titulo-container">
 
-<div class="info-evento">
+  <div class="bloque-texto">
+    <h1 class="nombre-corazon">
+      Khalees<span class="i-corazon">i</span>
+    </h1>
+   <div class="cumple">CUMPLE</div>
+  
+  
   <div class="fila-superior">
     <span class="dia">MIERCOLES</span>
     <span class="separador"></span>
@@ -381,6 +431,9 @@ color:#ccc;
 
   <div class="salon">SALÓN DE EVENTOS</div>
   <div class="nombre-salon">"Magic Kids"</div>
+  </div>
+  <img src="numero6.png" class="numero6" alt="6 años">
+
 </div>
 
 <div class="countdown-title">FALTAN</div>
@@ -504,7 +557,6 @@ video.play();
 </body>
 
 </html>
-
 
 
 
