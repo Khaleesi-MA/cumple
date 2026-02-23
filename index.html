@@ -17,34 +17,34 @@
 <style>
 
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
 body{
-position: relative;
-overflow-x:hidden;
-color:white;
-text-align:center;
-font-family:'Segoe UI', sans-serif;
-background-image: url('fondo1.jpg');
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
+  position: relative;
+  overflow-x:hidden;
+  color:white;
+  text-align:center;
+  font-family:'Segoe UI', sans-serif;
+  background-image: url('fondo1.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* CAPA PASTEL ENCIMA DEL FONDO */
 body::before{
-content:"";
-position: fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background: rgba(255, 214, 234, 0.35); /* Ajusta 0.25 a 0.45 si quieres más o menos pastel */
-z-index: -1;
-pointer-events: none;
+  content:"";
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: rgba(255, 214, 234, 0.35); /* Ajusta 0.25 a 0.45 si quieres más o menos pastel */
+  z-index: -1;
+  pointer-events: none;
 }
 
 .titulo-container{
@@ -84,73 +84,73 @@ pointer-events: none;
 }
 
 .nombre-corazon{
-font-family: 'Luckiest Guy', cursive;
-font-size:50px;
-color:#ff1493;
-margin-top: 20px;
-margin-left: 10px;  /* prueba -20, -30, -50 */
-
--webkit-text-stroke: 0.4px white;
+  font-family: 'Luckiest Guy', cursive;
+  font-size:50px;
+  color:#ff1493;
+  margin-top: 20px;
+  margin-left: 10px;  /* prueba -20, -30, -50 */
+  
+  -webkit-text-stroke: 0.4px white;
 }
 
 .i-corazon{
-position:relative;
-display:inline-block;
-color:#ff1493;
+  position:relative;
+  display:inline-block;
+  color:#ff1493;
 
 }
 
 .i-corazon::after{
-content:"♥";
-position:absolute;
-
-/* Ajuste fino */
-top:0.05em;   /* mueve verticalmente */
-left:50%;
-transform:translate(-50%, -40%);
-
-
-font-size:0.45em; /* tamaño relativo a la letra */
-color:#ff1493;
-
-/* 👇 Borde blanco del corazón */
--webkit-text-stroke:2px white;
+  content:"♥";
+  position:absolute;
+  
+  /* Ajuste fino */
+  top:0.05em;   /* mueve verticalmente */
+  left:50%;
+  transform:translate(-50%, -40%);
+  
+  
+  font-size:0.45em; /* tamaño relativo a la letra */
+  color:#ff1493;
+  
+  /* 👇 Borde blanco del corazón */
+  -webkit-text-stroke:2px white;
 }
 
 .heart{
-font-size: 30px;
-color: #ff1493;
-position: absolute;
-top: -10px;
-right: -20px;
+  font-size: 30px;
+  color: #ff1493;
+  position: absolute;
+  top: -10px;
+  right: -20px;
 }
 
 /* NUEVA IMAGEN ARRIBA DEL NOMBRE */
 .imagen-top {
-width: 350px; /* Ajusta el tamaño aquí */
-max-width: 80%;
-height: auto;
-display: block;
-margin-bottom: -10px;  /* ajusta entre -5 y -20 */
-margin: 0 auto;
-filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.2));
-/* Si quieres que flote como pikachu, descomenta la línea de abajo */
-/* animation: float 3s ease-in-out infinite; */
+  width: 350px; /* Ajusta el tamaño aquí */
+  max-width: 80%;
+  height: auto;
+  display: block;
+  margin-bottom: -10px;  /* ajusta entre -5 y -20 */
+  margin: 0 auto;
+  filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.2));
+  /* Si quieres que flote como pikachu, descomenta la línea de abajo */
+  /* animation: float 3s ease-in-out infinite; */
 }
 
 
 .info-evento{
-text-align:center;
-font-family: 'Montserrat', sans-serif;
+  text-align:center;
+  font-family: 'Montserrat', sans-serif;
 }
 
 .fila-superior{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:10px;
-font-weight:600;
-letter-spacing:2px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  font-weight:600;
+  letter-spacing:2px;
 }
 
 .dia{
@@ -217,30 +217,30 @@ letter-spacing:2px;
 }
 
 /* VIDEO SUPERIOR */
-.video-banner{
-width:100%;
-height:30vh;
-overflow:hidden;
+  .video-banner{
+  width:100%;
+  height:30vh;
+  overflow:hidden;
 }
 
 .video-banner video{
-width:100%;
-height:100%;
-object-fit:cover;
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
 
 /* LOGO */
 .header{
-position:relative;
+  position:relative;
 }
 
 .logo{
-width:250px;
-margin-top:-60px;
-margin-left: -20px;  /* prueba -20, -30, -50 */
-z-index:10;
-position:relative;
-filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
+  width:250px;
+  margin-top:-60px;
+  margin-left: -20px;  /* prueba -20, -30, -50 */
+  z-index:10;
+  position:relative;
+  filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
 }
 
 
@@ -272,8 +272,6 @@ filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
   opacity: 1;
   mix-blend-mode: normal;
   left: 220px;
-
-
 }
 
 
@@ -281,7 +279,7 @@ filter: drop-shadow(0px 8px 15px rgba(0,0,0,0.5));
 
 /* CONTENIDO */
 .container{
-padding:0px 20px 60px 20px;
+  padding:0px 20px 60px 20px;
 }
 
 /* CUENTA REGRESIVA */
@@ -297,7 +295,7 @@ padding:0px 20px 60px 20px;
   margin:15px 0px 20px 0px;
   color:white;
   font-size:14px;
-  text-shadow: 0.5px 0 #222, -0.5px 0 #222;
+  font-weight:margin;
 }
 
 
@@ -322,7 +320,7 @@ padding:0px 20px 60px 20px;
   justify-content:center;
   font-size:39px;
   line-height:1;
-  font-weight:bold;
+  font-weight:margin;
   border-radius:8px;
   color:#c2185b;
   box-shadow:0 8px 20px rgba(0,0,0,0.3);
@@ -332,6 +330,8 @@ padding:0px 20px 60px 20px;
   margin-top:6px;
   color:white;
   font-size:14px;
+
+  margin: 0px 0px 0px 20px;
 }
 
 @keyframes blink{
@@ -341,7 +341,7 @@ padding:0px 20px 60px 20px;
 
 .separator{
   font-size:30px;
-  font-weight:bold;
+  font-weight:margin;
   color:white;
   display:flex;
   align-items:center;
@@ -351,67 +351,67 @@ padding:0px 20px 60px 20px;
 
 /* BOTONES */
 button{
-padding:15px 30px;
-border:none;
-border-radius:40px;
-font-size:18px;
-margin:10px;
-cursor:pointer;
-transition:0.3s;
-font-family:'Luckiest Guy', cursive;
-letter-spacing:1px;
-box-shadow:0 5px 15px rgba(0,0,0,0.4);
-animation:bounce 2s infinite;
+  padding:15px 30px;
+  border:none;
+  border-radius:40px;
+  font-size:18px;
+  margin:10px;
+  cursor:pointer;
+  transition:0.3s;
+  font-family:'Luckiest Guy', cursive;
+  letter-spacing:1px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.4);
+  animation:bounce 2s infinite;
 }
 
 button:hover{
-transform:scale(1.1);
+  transform:scale(1.1);
 }
 
 @keyframes bounce{
-0%,100%{ transform:translateY(0); }
-50%{ transform:translateY(-5px); }
+  0%,100%{ transform:translateY(0); }
+  50%{ transform:translateY(-5px); }
 }
 
 .maps{
-background:linear-gradient(45deg,#E91E63,#C2185B);
-color:white;
-display:inline-flex;
-align-items:center;
-gap:10px;
+  background:linear-gradient(45deg,#E91E63,#C2185B);
+  color:white;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
 }
 
 .icon-map{
-width:28px;
-height:28px;
+  width:28px;
+  height:28px;
 }
 
 .whatsapp{
-background:#25D366;
-color:white;
+  background:#25D366;
+  color:white;
 }
 
 .pikachu{
-position:fixed;
-bottom:0;
-right:0%;
-width:140px;
-animation:float 3s ease-in-out infinite;
-pointer-events:none;
+  position:fixed;
+  bottom:0;
+  right:0%;
+  width:140px;
+  animation:float 3s ease-in-out infinite;
+  pointer-events:none;
 }
 
 @keyframes float{
-0%{ transform:translateY(0); }
-50%{ transform:translateY(-25px); }
-100%{ transform:translateY(0); }
+  0%{ transform:translateY(0); }
+  50%{ transform:translateY(-25px); }
+  100%{ transform:translateY(0); }
 }
 
 .sound-msg{
-position:fixed;
-bottom:15px;
-width:100%;
-font-size:14px;
-color:#ccc;
+  position:fixed;
+  bottom:15px;
+  width:100%;
+  font-size:14px;
+  color:#ccc;
 }
 
 
@@ -579,7 +579,7 @@ color:#ccc;
     <img src="direccion.png" class="icono-direccion">
     <span>Av. Atenas 630 - La Tinguiña</span>
   </div>
-  <div class="nombre-salon">"Magic Kids"</div>
+  <div class="nombre-salon">"Local Magic Kids"</div>
   </div>
   <img src="numero6.png" class="numero6" alt="6 años">
 
@@ -727,6 +727,7 @@ for(let i=0; i<40; i++){
 </body>
 
 </html>
+
 
 
 
