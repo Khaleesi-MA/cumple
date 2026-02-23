@@ -388,15 +388,38 @@ button:hover{
 }
 
 .whatsapp{
-  background:#25D366;
-  color:white;
+  display: inline-flex;       /* importante para alinear icono y texto */
+  align-items: center;        /* centra verticalmente */
+  justify-content: center;    /* centra horizontalmente */
+  gap: 8px;                   /* espacio entre icono y texto */
+  background: #1DA851;        /* verde un poco más oscuro */
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 40px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-family:'Luckiest Guy', cursive;
+  letter-spacing:1px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  animation: bounce 2s infinite;
+}
+
+.whatsapp:hover{
+  transform: scale(1.1);
+}
+
+.icono-whatsapp{
+  width: 24px;
+  height: 24px;
 }
 
 .pikachu{
   position:fixed;
   bottom:0;
   right:0%;
-  width:140px;
+  width:130px;
   animation:float 3s ease-in-out infinite;
   pointer-events:none;
 }
@@ -636,6 +659,7 @@ button:hover{
 </button>
 
 <button class="whatsapp" onclick="confirmar()">
+    <img src="whats.png" class="icono-whatsapp">
     Confirmar Asistencia
 </button>
 
@@ -728,7 +752,6 @@ for(let i=0; i<40; i++){
 </body>
 
 </html>
-
 
 
 
