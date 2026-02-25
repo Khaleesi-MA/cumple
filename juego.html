@@ -12,6 +12,21 @@
             overflow-x: hidden; transition: filter 1s ease;
         }
 
+        /* --- Limpieza de efectos de clic predeterminados --- */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none !important;
+        }
+        
+        .btn, .poke-card, .pokemon, h1, h3, p {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        button:focus {
+            outline: none;
+        }
+        
         /* El filtro gris solo afecta al campo de batalla al perder */
         .game-over-filter #battleField { filter: grayscale(1) contrast(0.8); }
 
@@ -260,4 +275,5 @@
         }
     </script>
 </body>
+
 </html>
