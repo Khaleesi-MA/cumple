@@ -5,18 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitación Especial</title>
     <style>
-
-        
         * { box-sizing: border-box; }
+        
         body, html {
             margin: 0; padding: 0; 
-            width: 100%; height: 100%; 
-            overflow: hidden;
+            width: 100%; 
+            /* Se cambia height: 100% por min-height para permitir el gesto de refresco */
+            min-height: 100vh; 
             font-family: 'Arial Black', sans-serif;
-
-            /* Permite el gesto de deslizar para actualizar pero evita el rebote elástico feo */
+            /* Permite el gesto de deslizar para actualizar */
             overscroll-behavior-y: auto; 
-            overflow-x: hidden; /* Evita que se mueva hacia los lados */
+            overflow-x: hidden; 
+            background-color: #111;
         }
 
         /* FONDO PRINCIPAL */
@@ -24,100 +24,80 @@
             background-image: url('misty.jpg');
             background-size: cover;
             background-position: center top;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-end; 
+            padding-bottom: 20px;
         }
 
-        /* PANEL CON DEGRADADO ROSADO INTENSO */
+        /* PANEL COLLAGE */
         .collage-panel {
             position: relative;
-            overflow: hidden;
             background: linear-gradient(135deg, #ffb7d5 0%, #f9a8d4 50%, #e9d5ff 100%);
             opacity: 0.98;
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             
-            width: 92%;
+            width: 94%;
             max-width: 480px;
-            padding: 25px 20px;
+            padding: 25px 15px;
             border-radius: 40px; 
             border: 4px solid white;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 25px; 
         }
 
-        /* EFECTO DE BRILLO EN EL PANEL */
-        .collage-panel::after {
-            content: "";
-            position: absolute;
-            top: -50%;
-            left: -100%;
-            width: 50%;
-            height: 200%;
-            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
-            transform: rotate(30deg);
-            animation: reflejo 4s infinite ease-in-out;
-            pointer-events: none;
-        }
-
-        @keyframes reflejo {
-            0% { left: -100%; }
-            20% { left: 150%; }
-            100% { left: 150%; }
-        }
-
-        /* FRASE: RECTA, BLANCA Y CON BORDE FUCSIA */
+        /* FRASE */
         .header-text {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: white; 
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             line-height: 1.1;
             text-transform: uppercase;
-            z-index: 1;
-            
             text-shadow: 
-                -2.5px -2.5px 0 #FF00FF, 
-                 2.5px -2.5px 0 #FF00FF,
-                -2.5px  2.5px 0 #FF1493, 
-                 2.5px  2.5px 0 #FF1493,
+                -2px -2px 0 #FF00FF,  
+                 2px -2px 0 #FF00FF,
+                -2px  2px 0 #FF1493,  
+                 2px  2px 0 #FF1493,
                  4px  4px 0px rgba(0,0,0,0.2);
         }
 
-        /* BOTONES */
+        /* CONTENEDOR DE BOTONES - Ahora permite que estén uno al lado del otro */
         .buttons-container {
             display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
+            flex-direction: row; /* Fuerza la fila */
+            gap: 10px;
             justify-content: center;
+            width: 100%;
             margin-bottom: 20px;
             z-index: 1;
         }
 
         .btn {
+            flex: 1; /* Hace que ambos botones crezcan por igual */
+            max-width: 160px; /* Limita el ancho máximo para que no se vean gigantes */
             height: 55px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 14px;
-            border: 6px solid;
+            font-size: 13px;
+            border: 4px solid;
             cursor: pointer;
             transition: 0.2s;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             font-family: 'Arial Black', sans-serif;
             text-align: center;
+            /* Evita el sombreado celeste al tocar */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* ANIMACIÓN DE PULSO (LATIDO) */
         @keyframes pulso {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -125,16 +105,13 @@
         }
 
         .btn-ver { 
-            width: 100px; 
             background: white; 
             color: #a855f7; 
             border-color: #a855f7; 
-            text-shadow: 0.5px 0 #a855f7, -0.5px 0 #a855f7;
             animation: pulso 2s infinite ease-in-out;
         }
 
         .btn-jugar { 
-            width: 70px; 
             background: #a855f7; 
             color: white; 
             border-color: white; 
@@ -146,18 +123,15 @@
         /* IMAGEN COLLAGE */
         .img-collage {
             width: 100%;
-            max-width: 460px;
             height: auto;
             border-radius: 20px;
-            border: none;
-            box-shadow: none;
-            z-index: 1;
+            display: block;
         }
 
-        @media (max-width: 480px) {
-            .header-text { font-size: 1.5rem; }
-            .btn { width: 100%; max-width: 120px; }
-            .collage-panel { margin-bottom: 20px; padding: 20px 15px; }
+        /* Ajustes específicos para móviles muy pequeños */
+        @media (max-width: 360px) {
+            .header-text { font-size: 1.2rem; }
+            .btn { font-size: 11px; height: 50px; }
         }
     </style>
 </head>
@@ -169,7 +143,7 @@
             <div class="header-text">¡TIENES UNA<br>INVITACIÓN ESPECIAL!</div>
 
             <div class="buttons-container">
-                <a href="invitacion.html" class="btn btn-ver" onclick="localStorage.setItem('playAudio', 'true')">VER INVITACION</a>
+                <a href="invitacion.html" class="btn btn-ver" onclick="localStorage.setItem('playAudio', 'true')">VER INVITACIÓN</a>
                 <a href="juego.html" class="btn btn-jugar" onclick="localStorage.setItem('iniciarAudio', 'true')">JUGAR AHORA</a>
             </div>
 
@@ -179,10 +153,4 @@
     </div>
 
 </body>
-
 </html>
-
-
-
-
-
