@@ -5,12 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Invitación Especial</title>
     <style>
+
+        
         * { box-sizing: border-box; }
         body, html {
             margin: 0; padding: 0; 
             width: 100%; height: 100%; 
             overflow: hidden;
             font-family: 'Arial Black', sans-serif;
+
+            /* Permite el gesto de deslizar para actualizar pero evita el rebote elástico feo */
+            overscroll-behavior-y: auto; 
+            overflow-x: hidden; /* Evita que se mueva hacia los lados */
         }
 
         /* FONDO PRINCIPAL */
@@ -175,3 +181,4 @@
 </body>
 
 </html>
+
