@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Invitación Especial</title>
+    <style>
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0; 
+            width: 100%; height: 100%; 
+            overflow: hidden;
+            font-family: 'Arial Black', sans-serif;
+        }
+
+        /* FONDO PRINCIPAL */
+        .bg {
+            background-image: url('misty.jpg');
+            background-size: cover;
+            background-position: center top;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end; 
+        }
+
+        /* PANEL CON DEGRADADO ROSADO INTENSO */
+        .collage-panel {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffb7d5 0%, #f9a8d4 50%, #e9d5ff 100%);
+            opacity: 0.98;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            
+            width: 92%;
+            max-width: 480px;
+            padding: 25px 20px;
+            border-radius: 40px; 
+            border: 4px solid white;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px; 
+        }
+
+        /* EFECTO DE BRILLO EN EL PANEL */
+        .collage-panel::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -100%;
+            width: 50%;
+            height: 200%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+            transform: rotate(30deg);
+            animation: reflejo 4s infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        @keyframes reflejo {
+            0% { left: -100%; }
+            20% { left: 150%; }
+            100% { left: 150%; }
+        }
+
+        /* FRASE: RECTA, BLANCA Y CON BORDE FUCSIA */
+        .header-text {
+            font-size: 1.8rem;
+            color: white; 
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            text-transform: uppercase;
+            z-index: 1;
+            
+            text-shadow: 
+                -2.5px -2.5px 0 #FF00FF, 
+                 2.5px -2.5px 0 #FF00FF,
+                -2.5px  2.5px 0 #FF1493, 
+                 2.5px  2.5px 0 #FF1493,
+                 4px  4px 0px rgba(0,0,0,0.2);
+        }
+
+        /* BOTONES */
+        .buttons-container {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        .btn {
+            height: 55px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 14px;
+            border: 6px solid;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-family: 'Arial Black', sans-serif;
+            text-align: center;
+        }
+
+        /* ANIMACIÓN DE PULSO (LATIDO) */
+        @keyframes pulso {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .btn-ver { 
+            width: 210px; 
+            background: white; 
+            color: #a855f7; 
+            border-color: #a855f7; 
+            text-shadow: 0.5px 0 #a855f7, -0.5px 0 #a855f7;
+            animation: pulso 2s infinite ease-in-out;
+        }
+
+        .btn-jugar { 
+            width: 170px; 
+            background: #a855f7; 
+            color: white; 
+            border-color: white; 
+            animation: pulso 2s infinite ease-in-out 0.5s;
+        }
+
+        .btn:active { transform: scale(0.95); animation: none; }
+
+        /* IMAGEN COLLAGE */
+        .img-collage {
+            width: 100%;
+            max-width: 460px;
+            height: auto;
+            border-radius: 20px;
+            border: none;
+            box-shadow: none;
+            z-index: 1;
+        }
+
+        @media (max-width: 480px) {
+            .header-text { font-size: 1.5rem; }
+            .btn { width: 100%; max-width: 240px; }
+            .collage-panel { margin-bottom: 20px; padding: 20px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg">
+        <div class="collage-panel">
+            
+            <div class="header-text">¡TIENES UNA<br>INVITACIÓN ESPECIAL!</div>
+
+            <div class="buttons-container">
+                <a href="invitacion.html" class="btn btn-ver" onclick="localStorage.setItem('playAudio', 'true')">VER INVITACION</a>
+                <a href="juego.html" class="btn btn-jugar" onclick="localStorage.setItem('iniciarAudio', 'true')">JUGAR AHORA</a>
+            </div>
+
+            <img src="collage.png" alt="Collage" class="img-collage">
+
+        </div>
+    </div>
+
+</body>
+</html>
