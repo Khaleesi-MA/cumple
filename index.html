@@ -2,20 +2,20 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Invitación Especial</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body, html {
             margin: 0; padding: 0; 
             width: 100%; 
-            /* Permitimos el gesto de deslizar para actualizar */
             min-height: 100vh; 
             font-family: 'Arial Black', sans-serif;
-            overscroll-behavior-y: auto; 
+            overscroll-behavior-y: none; 
             overflow-x: hidden; 
             background-color: #111;
+            touch-action: manipulation;
         }
 
         /* FONDO PRINCIPAL */
@@ -31,28 +31,53 @@
             padding-bottom: 20px;
         }
 
-        /* PANEL COLLAGE */
+        /* PANEL COLLAGE CON EFECTO BRILLO */
         .collage-panel {
             position: relative;
             background: linear-gradient(135deg, #ffb7d5 0%, #f9a8d4 50%, #e9d5ff 100%);
             opacity: 0.98;
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
-            
             width: 94%;
             max-width: 480px;
             padding: 25px 15px;
             border-radius: 40px; 
             border: 4px solid white;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            
             display: flex;
             flex-direction: column;
             align-items: center;
+            overflow: hidden; 
+        }
+
+        /* EFECTO DE BRILLO QUE PASA RÁPIDO */
+        .collage-panel::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(
+                to right, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.7) 50%, 
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: skewX(-25deg);
+            animation: shine 4s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -150%; }
+            20% { left: 150%; }
+            100% { left: 150%; }
         }
 
         /* FRASE */
         .header-text {
+            position: relative;
+            z-index: 2;
             font-size: 1.5rem;
             color: white; 
             text-align: center;
@@ -67,15 +92,15 @@
                  4px  4px 0px rgba(0,0,0,0.2);
         }
 
-        /* CONTENEDOR DE BOTONES EN FILA */
         .buttons-container {
+            position: relative;
+            z-index: 3;
             display: flex;
             flex-direction: row; 
             gap: 10px;
             justify-content: center;
             width: 100%;
             margin-bottom: 20px;
-            z-index: 1;
         }
 
         .btn {
@@ -88,13 +113,12 @@
             justify-content: center;
             text-decoration: none;
             font-size: 13px;
-            font-weight: 900; /* Negrita máxima */
+            font-weight: 900;
             border: 4px solid;
             cursor: pointer;
             transition: 0.2s;
             font-family: 'Arial Black', sans-serif;
             text-align: center;
-            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
         }
 
@@ -104,24 +128,12 @@
             100% { transform: scale(1); }
         }
 
-        .btn-ver { 
-            background: white; 
-            color: #a855f7; 
-            border-color: #a855f7; 
-            animation: pulso 2s infinite ease-in-out;
-        }
+        .btn-ver { background: white; color: #a855f7; border-color: #a855f7; animation: pulso 2s infinite ease-in-out; }
+        .btn-jugar { background: #a855f7; color: white; border-color: white; animation: pulso 2s infinite ease-in-out 0.5s; }
 
-        .btn-jugar { 
-            background: #a855f7; 
-            color: white; 
-            border-color: white; 
-            animation: pulso 2s infinite ease-in-out 0.5s;
-        }
-
-        .btn:active { transform: scale(0.95); animation: none; }
-
-        /* IMAGEN COLLAGE */
         .img-collage {
+            position: relative;
+            z-index: 2;
             width: 100%;
             height: auto;
             border-radius: 20px;
@@ -138,9 +150,7 @@
 
     <div class="bg">
         <div class="collage-panel">
-            
             <div class="header-text">¡TIENES UNA<br>INVITACIÓN ESPECIAL!</div>
-
             <div class="buttons-container">
                 <a href="invitacion.html" class="btn btn-ver" onclick="localStorage.setItem('playAudio', 'true')">
                     <b>VER INVITACIÓN</b>
@@ -149,9 +159,7 @@
                     <b>JUGAR AHORA</b>
                 </a>
             </div>
-
             <img src="collage.png" alt="Collage" class="img-collage">
-
         </div>
     </div>
 
