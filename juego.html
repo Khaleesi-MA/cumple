@@ -3,294 +3,427 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PKMN: Definitive Battle - Khaleesi Edition</title>
+    <title>JUEGO POKEMON</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            background: #111; color: white; text-align: center;
+            background: #050505; color: white; text-align: center;
             font-family: 'Arial Black', sans-serif; margin: 0;
             display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-            overflow: hidden; transition: filter 1s ease;
+            overflow: hidden;
+            position: relative;
+            touch-action: manipulation; /* Bloquea gestos de zoom nativos */
+            user-select: none; -webkit-user-select: none;
         }
 
-        /* El filtro gris solo afecta al campo de batalla al perder */
-        .game-over-filter #battleField { filter: grayscale(1) contrast(0.8); }
-
-        h1 { margin-top: 20px; color: #FFCB05; -webkit-text-stroke: 1px #2a75bb; text-shadow: 2px 2px #000; user-select: none; }
-        
-        /* PANTALLA SELECCIÓN */
-        #selectScreen { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; padding: 20px; z-index: 10; }
-        .poke-card { 
-            background: #222; border: 4px solid #444; border-radius: 20px; 
-            padding: 15px; cursor: pointer; transition: 0.3s; user-select: none;
+        /* ESTRELLAS DE FONDO (150 unidades) */
+        .star {
+            position: absolute; background: white; border-radius: 50%;
+            opacity: 0.5; animation: twinkle var(--duration) infinite ease-in-out;
+            pointer-events: none; z-index: 0;
         }
-        .poke-card:hover { transform: scale(1.05); background: #333; border-color: #FFCB05; }
-        .poke-card img { width: 100px; }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
 
-        /* PANTALLA DE JUEGO */
-        #game { display: none; width: 100%; max-width: 900px; position: relative; }
-        
-        /* LETREROS DE RESULTADO */
-        #resultLabel {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 70px; font-weight: 900; z-index: 500; display: none;
-            white-space: nowrap; text-shadow: 0 0 20px rgba(0,0,0,0.9);
-            animation: latido 0.8s infinite;
+        #mainTitle, #battleTitle { position: relative; z-index: 10; color: #FFCB05; margin: 15px 0; text-shadow: 3px 3px #000; font-size: 22px; }
+
+        /* --- NUEVO: ESTILO DEL VS CENTRAL --- */
+        .vs-badge {
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            font-weight: 900;
+            font-style: italic;
+            z-index: 5;
+            background: linear-gradient(to bottom, #ff0000 0%, #8b0000 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(4px 4px 0px rgba(0,0,0,1));
             pointer-events: none;
+            opacity: 0.9;
+            animation: pulseVs 2s infinite ease-in-out;
+            display: none; /* Se activa al iniciar juego */
         }
-        @keyframes latido {
-            0% { transform: translate(-50%, -50%) scale(1); }
+        @keyframes pulseVs {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
             50% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); }
         }
 
-        .battle {
-            position: relative; display: flex; justify-content: space-around;
-            align-items: center; height: 350px; margin: 20px;
-            background: radial-gradient(circle, #444, #000);
-            border-radius: 50px; border: 4px solid #222; overflow: hidden;
+        /* PANTALLA DE SELECCIÓN CON HOVER */
+        #selectScreen { position: relative; z-index: 10; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; width: 100%; max-width: 400px; }
+        .select-card { 
+            background: rgba(20, 20, 20, 0.9); border-radius: 20px; padding: 15px; 
+            border: 4px solid; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer;
         }
+        .card-pikachu { border-color: #FFCB05; } .card-charmander { border-color: #FF5722; }
+        .card-squirtle { border-color: #03A9F4; } .card-bulbasaur { border-color: #4CAF50; }
+        
+        .select-card:hover { transform: translateY(-10px) scale(1.05); z-index: 20; }
+        .card-pikachu:hover { box-shadow: 0 0 25px #FFCB05; background: #2e2b00; }
+        .card-charmander:hover { box-shadow: 0 0 25px #FF5722; background: #2e0a00; }
+        .card-squirtle:hover { box-shadow: 0 0 25px #03A9F4; background: #00142e; }
+        .card-bulbasaur:hover { box-shadow: 0 0 25px #4CAF50; background: #0a2e00; }
 
-        /* POKÉMON */
-        .pokemon { width: 130px; z-index: 10; transition: transform 0.1s; cursor: pointer; user-select: none; }
-        .float { animation: floatAnim 2s infinite ease-in-out; }
+        /* ÁREA DE BATALLA */
+        .battle-container { width: 100%; transition: filter 1s ease; position: relative; z-index: 10; }
+        .battle { position: relative; display: flex; justify-content: space-around; align-items: center; width: 100%; height: 380px; }
+        .fighter-container { display: flex; flex-direction: column; align-items: center; width: 48%; position: relative; }
+        
+        .pokemon-name { font-size: 18px; color: #fff; text-transform: uppercase; font-weight: 900; margin-bottom: 5px; text-shadow: 2px 2px #000; }
+        .pokemon { width: 140px; z-index: 10; transition: transform 0.2s; cursor: pointer; }
+        .float { animation: floatAnim 3s infinite ease-in-out; }
         @keyframes floatAnim { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        /* PODERES */
-        .power { position: absolute; top: 50%; z-index: 100; pointer-events: none; }
-        .lightning { width: 40px; height: 80px; background: #FFCB05; clip-path: polygon(50% 0%, 100% 40%, 60% 40%, 80% 100%, 0% 50%, 40% 50%, 20% 0%); }
-        .fire { width: 60px; height: 60px; background: radial-gradient(circle, #fff, #ffae00, #ff4500); border-radius: 50%; }
-        .water { width: 50px; height: 50px; background: #42afff; border-radius: 50% 5% 55% 50%; transform: rotate(-45deg); }
-        .leaf { width: 40px; height: 60px; background: #32cd32; clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
-        .psychic { width: 70px; height: 70px; background: radial-gradient(circle, #fff, #ff00ff, #800080); border-radius: 50%; }
-
-        .p-right { left: 20%; animation: moveRight 0.4s linear forwards; }
-        .p-left { right: 20%; animation: moveLeft 0.4s linear forwards; }
-        @keyframes moveRight { 0% { transform: translate(0, -50%) scale(0.5); } 100% { transform: translate(450px, -50%) scale(1.5); } }
-        @keyframes moveLeft { 0% { transform: translate(0, -50%) scale(0.5); } 100% { transform: translate(-450px, -50%) scale(1.5); } }
-
-        /* INTERFAZ VIDA */
-        .health-container { width: 160px; z-index: 20; }
-        .health-bar { width: 100%; height: 15px; background: #333; border-radius: 10px; border: 2px solid #000; margin-top: 5px; overflow: hidden;}
-        .health { height: 100%; width: 100%; background: #00ff00; transition: 0.3s; }
-
-        /* BOTONES ESTILIZADOS */
-        .button-group { 
-            display: flex; 
-            flex-direction: row; 
-            justify-content: center; 
-            gap: 12px; 
-            margin-top: 20px; 
-            width: 100%; 
-            padding: 0 15px;
+        /* DAÑO Y EFECTOS */
+        .dmg-text {
+            position: absolute; top: 20%; font-size: 35px; font-weight: 900;
+            color: #ff3d00; text-shadow: 2px 2px #000; z-index: 100;
+            animation: dmgAnim 0.8s ease-out forwards; pointer-events: none;
         }
+        @keyframes dmgAnim { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-70px); opacity: 0; scale: 1.5; } }
 
-        .btn { 
-            flex: 1;
-            max-width: 180px;
-            height: 55px;
-            border-radius: 20px; 
-            cursor: pointer; 
-            border: 4px solid rgba(255,255,255,0.3); 
-            color: white; 
-            font-family: 'Arial Black', sans-serif; 
-            font-weight: 900;
+        .vibrate { animation: shake 0.1s linear infinite; }
+        @keyframes shake { 0% { transform: translate(3px,3px); } 50% { transform: translate(-3px,-3px); } 100% { transform: translate(3px,-3px); } }
+        .grayscale { filter: grayscale(1) brightness(0.5); }
+
+        /* HUD E ICONOS */
+        .stats-group {
+            position: relative; display: flex; align-items: center;
+            background: #111; padding: 0 10px 0 45px; 
+            border-radius: 30px; border: 2px solid #555; 
+            margin-top: 15px; width: 100%; height: 38px;
+        }
+        #eSide .stats-group { padding: 0 45px 0 10px; }
+        .mini-icon { position: absolute; width: 75px; height: 75px; z-index: 50; top: 50%; transform: translateY(-50%); }
+        #pIcon { left: -15px; } #eIcon { right: -15px; }
+
+        .health-bar-container { display: flex; flex-direction: column; justify-content: center; flex-grow: 1; height: 100%; gap: 3px; }
+        .health-bar { width: 100%; height: 14px; background: #222; border-radius: 7px; overflow: hidden; border: 1px solid #000; }
+        .health { height: 100%; width: 100%; transition: width 0.4s ease; }
+        .hp-green { background: linear-gradient(#00FF00, #008000); }
+        .hp-yellow { background: linear-gradient(#FFFF00, #808000); }
+        .hp-red { background: linear-gradient(#FF0000, #800000); }
+        
+        .sp-bar { width: 100%; height: 5px; background: #000; border-radius: 3px; overflow: hidden; }
+        .sp-fill { height: 100%; width: 0%; background: #00f2ff; box-shadow: 0 0 8px #00f2ff; transition: width 0.3s; }
+
+        /* ATAQUES (IMÁGENES) */
+        .power-img { position: absolute; z-index: 100; pointer-events: none; top: 40%; width: 80px; }
+        .pikachu-atk { width: 150px; filter: drop-shadow(0 0 10px #FFCB05); }
+        .p-right { animation: moveRight 0.4s ease-in forwards; }
+        .p-left { animation: moveLeft 0.4s ease-in forwards; }
+        @keyframes moveRight { 0% { left: 20%; opacity: 0; } 100% { left: 70%; opacity: 1; } }
+        @keyframes moveLeft { 0% { right: 20%; opacity: 0; } 100% { right: 70%; opacity: 1; } }
+
+        .special-fx { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+            width: 250px; z-index: 200; pointer-events: none; animation: specialImpact 0.8s forwards; 
+        }
+        @keyframes specialImpact { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); } 100% { transform: translate(-50%, -50%) scale(2); opacity: 0; } }
+
+        /* CONTROLES */
+        .controls { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; width: 100%; gap: 10px; margin-top: 20px; }
+        .btn { height: 35px; width: 180px; border-radius: 12px; border: 3px solid rgba(255,255,255,0.2); color: white; cursor: pointer; font-size: 11px; font-weight: 900; }
+        
+        .btn-atacar { background: linear-gradient(#e91e63, #880e4f); }
+        .btn-especial { background: linear-gradient(#00c6ff, #0072ff); display: none; box-shadow: 0 0 20px #00c6ff; }
+        
+        /* BOTONES DE FINALIZACIÓN */
+        .btn-retry { 
+            background: linear-gradient(#00d2ff, #3a7bd5);
+            flex: 1; 
+            border: 3px solid #003366;
+            color: white;
+            font-family: 'Arial Black', sans-serif;
             text-transform: uppercase;
-            transition: 0.2s; 
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 0px rgba(0,0,0,0.4);
-            font-size: 13px;
-            user-select: none;
+            opacity: 0.5; 
+            pointer-events: none; 
         }
 
-        .btn-atacar { background: #e91e63; max-width: 250px; }
-        .btn-retry { background: #2196f3 !important; filter: none !important; }
-        .btn-invitacion { background: #4caf50; }
+        .btn-inv { 
+            background: linear-gradient(#4caf50, #2e7d32);
+            flex: 1; 
+            border: 3px solid #1b4332;
+            text-decoration: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            color: white;
+            opacity: 0.5; 
+            pointer-events: none; 
+        }
 
-        .btn:active { transform: translateY(3px); box-shadow: 0 2px 0px rgba(0,0,0,0.4); }
+        .btn-ready { 
+            opacity: 1 !important; 
+            pointer-events: auto !important; 
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transform: scale(1);
+            transition: transform 0.2s;
+        }
 
-        .confeti { position: absolute; width: 10px; height: 10px; z-index: 1000; animation: caida linear forwards; }
-        @keyframes caida { 0% { transform: translateY(-10vh); opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }
+        .btn-ready:active { transform: scale(0.95); }
 
-        @media (max-width: 400px) {
-            .btn { font-size: 11px; height: 50px; }
-            #resultLabel { font-size: 50px; }
+        .end-row { 
+            display: none; 
+            gap: 12px; 
+            width: 90%; 
+            max-width: 320px; 
+            margin-top: 10px;
         }
     </style>
 </head>
-<body>
+<body onclick="initIntro()">
 
-    <h1>POKÉMON BATTLE</h1>
-    <p id="msgInicio" style="font-size: 12px; color: #888; margin-bottom: 10px;">Cargando batalla...</p>
+    <h1 id="mainTitle">¡ELIGE TU POKÉMON!</h1>
+    <h1 id="battleTitle" style="display:none;">BATALLA POKÉMON</h1>
 
     <div id="selectScreen">
-        <div class="poke-card" onclick="startGame('pikachu')" style="border-bottom: 8px solid #FFCB05;"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png"><p>PIKACHU</p></div>
-        <div class="poke-card" onclick="startGame('charmander')" style="border-bottom: 8px solid #FF4500;"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png"><p>CHARMANDER</p></div>
-        <div class="poke-card" onclick="startGame('squirtle')" style="border-bottom: 8px solid #00bfff;"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png"><p>SQUIRTLE</p></div>
-        <div class="poke-card" onclick="startGame('bulbasaur')" style="border-bottom: 8px solid #32cd32;"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"><p>BULBASAUR</p></div>
+        <div class="select-card card-pikachu" onclick="startGame('pikachu', '#1a1a00')">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="70"><p>PIKACHU</p>
+        </div>
+        <div class="select-card card-charmander" onclick="startGame('charmander', '#1a0500')">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" width="70"><p>CHARMANDER</p>
+        </div>
+        <div class="select-card card-squirtle" onclick="startGame('squirtle', '#000d1a')">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" width="70"><p>SQUIRTLE</p>
+        </div>
+        <div class="select-card card-bulbasaur" onclick="startGame('bulbasaur', '#051a00')">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="70"><p>BULBASAUR</p>
+        </div>
     </div>
 
-    <div id="game">
-        <div id="resultLabel"></div>
+    <div id="game" style="display:none; width: 100%;">
+        <div id="resultLabel" style="position:absolute; top:30%; left:50%; transform:translate(-50%,-50%); z-index:1000; font-size:45px; display:none; text-shadow: 4px 4px #000;"></div>
         
-        <div class="battle" id="battleField">
-            <div class="health-container">
-                <h3 id="pName" style="font-size: 14px; margin: 5px;">TÚ</h3>
-                <img id="player" class="pokemon float">
-                <div class="health-bar"><div id="pBar" class="health"></div></div>
-            </div>
-            <div style="font-size: 30px; opacity: 0.3;">VS</div>
-            <div class="health-container">
-                <h3 style="font-size: 14px; margin: 5px;">MEW</h3>
-                <img id="enemy" class="pokemon float" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/151.png">
-                <div class="health-bar"><div id="eBar" class="health"></div></div>
+        <div id="battleField" class="battle-container">
+            <div id="vsText" class="vs-badge">VS</div>
+
+            <div class="battle" id="arena">
+                <div class="fighter-container" id="pSide">
+                    <div id="pName" class="pokemon-name">JUGADOR</div>
+                    <img id="player" class="pokemon float" onclick="handlePokemonClick()">
+                    <div class="stats-group">
+                        <img id="pIcon" class="mini-icon">
+                        <div class="health-bar-container">
+                            <div class="health-bar"><div id="pBar" class="health hp-green"></div></div>
+                            <div class="sp-bar"><div id="pSP" class="sp-fill"></div></div>
+                        </div>
+                        <div id="pHPText" style="font-size:12px; margin-left:5px; font-weight:bold;">500</div>
+                    </div>
+                </div>
+                <div class="fighter-container" id="eSide">
+                    <div id="eName" class="pokemon-name">JEFE</div>
+                    <img id="enemy" class="pokemon float">
+                    <div class="stats-group">
+                        <div id="eHPText" style="font-size:12px; margin-right:5px; font-weight:bold;">500</div>
+                        <div class="health-bar-container">
+                            <div class="health-bar"><div id="eBar" class="health hp-green"></div></div>
+                            <div class="sp-bar"><div id="eSP" class="sp-fill"></div></div>
+                        </div>
+                        <img id="eIcon" class="mini-icon">
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="button-group">
-            <button class="btn btn-atacar" id="btnAtacar" onclick="playerAttack()"><b>¡ATACAR!</b></button>
-            
-            <button class="btn btn-retry" id="btnRetry" style="display:none;" onclick="reiniciarJuego()">
-                <b>JUGAR OTRA VEZ</b>
-            </button>
-            
-            <a href="invitacion.html" class="btn btn-invitacion" id="btnInv" style="display:none;" onclick="localStorage.setItem('playAudio', 'true')">
-                <b>VER INVITACIÓN</b>
-            </a>
+        <div class="controls">
+            <button class="btn btn-atacar" id="btnAtacar" onclick="playerAttack(false)">ATACAR 👊</button>
+            <button class="btn btn-especial" id="btnEspecial" onclick="playerAttack(true)">SUPER ESPECIAL 🔥</button>
+            <div class="end-row" id="endControls">
+                <button id="retryBtn" class="btn btn-retry" onclick="location.reload()">JUGAR DE NUEVO</button>
+                <a id="invBtn" href="invitacion.html" class="btn btn-inv" onclick="localStorage.setItem('playAudio', 'true')">
+                    VER INVITACIÓN 💌
+                </a>
+            </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <script>
-        let pHP = 100, eHP = 100, pType = "", gameActive = false, mewTimer;
+        function createStars() {
+            for (let i = 0; i < 150; i++) {
+                const star = document.createElement("div");
+                star.className = "star";
+                const size = Math.random() * 3 + 1 + "px";
+                star.style.width = size; star.style.height = size;
+                star.style.left = Math.random() * 100 + "vw";
+                star.style.top = Math.random() * 100 + "vh";
+                star.style.setProperty('--duration', Math.random() * 3 + 1 + "s");
+                document.body.appendChild(star);
+            }
+        }
+        createStars();
+
+        document.addEventListener('touchstart', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (e) => {
+            let now = Date.now();
+            if (now - lastTouchEnd <= 300) e.preventDefault();
+            lastTouchEnd = now;
+        }, false);
+
+        const MAX_HP = 500; 
+        let pHP = MAX_HP, eHP = MAX_HP, pSP = 0, eSP = 0, pType = "", eType = "", gameActive = false, hasEnded = false, enemyTimer;
+
+        const bosses = [
+            { name: "CHARIZARD", id: 6, sound: "fuego", atk: "ataque_fuego.png" },
+            { name: "GENGAR", id: 94, sound: "psiquico", atk: "ataque_psiquico.png" },
+            { name: "GYARADOS", id: 130, sound: "agua", atk: "ataque_agua.png" },
+            { name: "MEW", id: 151, sound: "psiquico", atk: "ataque_psiquico.png" }
+        ];
 
         const sounds = {
-            pikachu: new Audio('pika.mp3'),
-            charmander: new Audio('fuego.mp3'),
-            squirtle: new Audio('agua.mp3'),
-            bulbasaur: new Audio('hoja.mp3'),
-            mew: new Audio('psiquico.mp3')
+            intro: new Audio('intro.mp3'), battle: new Audio('batalla.mp3'), especial: new Audio('especial.mp3'),
+            victoria: new Audio('victoria.mp3'), derrota: new Audio('derrota.mp3'),
+            pikachu: new Audio('pika.mp3'), fuego: new Audio('fuego.mp3'), agua: new Audio('agua.mp3'),
+            hoja: new Audio('hoja.mp3'), psiquico: new Audio('psiquico.mp3')
         };
-        const bgIntro = new Audio('intro.mp3');
-        const bgBattle = new Audio('batalla.mp3');
-        const sfxWin = new Audio('victoria.mp3');
-        const sfxLose = new Audio('derrota.mp3');
 
-        bgIntro.loop = true; bgBattle.loop = true;
+        const playerAtks = { pikachu: 'ataque_electrico.png', charmander: 'ataque_fuego.png', squirtle: 'ataque_agua.png', bulbasaur: 'ataque_hoja.png' };
 
-        window.addEventListener('load', () => {
+        window.onload = () => {
             if (localStorage.getItem('iniciarAudio') === 'true') {
-                bgIntro.play().then(() => {
-                    document.getElementById('msgInicio').style.display = 'none';
-                    localStorage.removeItem('iniciarAudio');
-                }).catch(() => {});
+                initIntro(); localStorage.removeItem('iniciarAudio');
             }
-        });
+        };
 
-        function startGame(choice) {
-            pType = choice; gameActive = true;
-            bgIntro.pause(); bgBattle.play();
-            document.getElementById("selectScreen").style.display = "none";
-            document.getElementById("game").style.display = "block";
-            
-            const imgs = { pikachu: 25, charmander: 4, squirtle: 7, bulbasaur: 1 };
-            const pImg = document.getElementById("player");
-            pImg.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${imgs[choice]}.png`;
-            document.getElementById("pName").innerText = choice.toUpperCase();
+        function playSound(name) { if(sounds[name]) { sounds[name].pause(); sounds[name].currentTime = 0; sounds[name].play().catch(()=>{}); } }
 
-            pImg.onclick = playerAttack;
-            mewTimer = setInterval(enemyAttack, 1500); // Mew ataca cada 1.5s
+        function initIntro() { 
+            if(sounds.intro.paused && !gameActive && !hasEnded) { sounds.intro.loop = true; sounds.intro.play().catch(()=>{}); } 
         }
 
-        function playerAttack() {
-            if (!gameActive) return;
-            const p = document.getElementById("player");
-            p.style.transform = "scale(1.2) translateX(30px)";
+        function startGame(choice, bg) {
+            pType = choice; gameActive = true;
+            sounds.intro.pause(); sounds.battle.loop = true; sounds.battle.play();
+            document.body.style.background = bg;
+            document.getElementById("selectScreen").style.display = "none";
+            document.getElementById("mainTitle").style.display = "none";
+            document.getElementById("battleTitle").style.display = "block";
+            document.getElementById("game").style.display = "block";
             
-            createPower({pikachu:'lightning', charmander:'fire', squirtle:'water', bulbasaur:'leaf'}[pType], "p-right");
-            if (sounds[pType]) { sounds[pType].currentTime = 0; sounds[pType].play(); }
+            // Mostrar el VS al empezar
+            document.getElementById("vsText").style.display = "block";
+            
+            const boss = bosses[Math.floor(Math.random() * bosses.length)];
+            eType = boss;
 
-            setTimeout(() => {
-                p.style.transform = "";
-                eHP -= 10; updateUI();
-                if(eHP <= 0) endGame(true);
-            }, 200);
+            const pIds = { pikachu: 25, charmander: 4, squirtle: 7, bulbasaur: 1 };
+            document.getElementById("pName").innerText = choice.toUpperCase();
+            document.getElementById("player").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pIds[choice]}.png`;
+            document.getElementById("pIcon").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pIds[choice]}.png`;
+            
+            document.getElementById("eName").innerText = boss.name;
+            document.getElementById("enemy").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${boss.id}.png`;
+            document.getElementById("eIcon").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${boss.id}.png`;
+
+            updateUI(); enemyTimer = setInterval(enemyAttack, 1100);
+        }
+
+        function createFX(url, anim, isPikachu = false) {
+            const img = document.createElement("img");
+            img.src = url; img.className = `power-img ${anim} ${isPikachu ? 'pikachu-atk' : ''}`;
+            document.getElementById("arena").appendChild(img);
+            setTimeout(() => img.remove(), 400);
+        }
+
+        function showDamage(amount, sideId) {
+            const container = document.getElementById(sideId);
+            const text = document.createElement("div"); text.className = "dmg-text";
+            text.innerText = `-${amount}`; container.appendChild(text);
+            setTimeout(() => text.remove(), 800);
+        }
+
+        function handlePokemonClick() { if(!hasEnded) playerAttack(pSP >= 100); }
+
+        function playerAttack(isSpecial) {
+            if (!gameActive) return;
+            let dmg = isSpecial ? 110 : Math.floor(Math.random() * 11) + 15;
+            if(isSpecial) {
+                playSound('especial');
+                document.getElementById("battleField").classList.add("vibrate");
+                const fx = document.createElement("img"); fx.src = playerAtks[pType]; fx.className = "special-fx";
+                document.getElementById("eSide").appendChild(fx);
+                setTimeout(() => { 
+                    document.getElementById("battleField").classList.remove("vibrate");
+                    fx.remove(); eHP -= dmg; pSP = 0; showDamage(dmg, "eSide"); updateUI(); if(eHP <= 0) endGame(true);
+                }, 800);
+            } else {
+                playSound(pType === 'pikachu' ? 'pikachu' : pType === 'charmander' ? 'fuego' : pType === 'squirtle' ? 'agua' : 'hoja');
+                document.getElementById("player").style.transform = "translateX(40px)";
+                createFX(playerAtks[pType], "p-right", pType === 'pikachu');
+                setTimeout(() => { 
+                    document.getElementById("player").style.transform = ""; 
+                    eHP -= dmg; pSP = Math.min(100, pSP + 25); 
+                    showDamage(dmg, "eSide"); updateUI(); if(eHP <= 0) endGame(true); 
+                }, 200);
+            }
         }
 
         function enemyAttack() {
             if (!gameActive) return;
-            const e = document.getElementById("enemy");
-            e.style.transform = "scale(1.2) translateX(-30px)";
-            
-            createPower("psychic", "p-left");
-            sounds.mew.currentTime = 0; sounds.mew.play();
-
-            setTimeout(() => {
-                e.style.transform = "";
-                pHP -= 12; updateUI();
-                if(pHP <= 0) endGame(false);
-            }, 200);
-        }
-
-        function createPower(type, side) {
-            const p = document.createElement("div");
-            p.className = `power ${type} ${side}`;
-            document.getElementById("battleField").appendChild(p);
-            setTimeout(() => p.remove(), 400);
+            if (eSP >= 100) {
+                let dmg = 100; playSound('especial');
+                document.getElementById("battleField").classList.add("vibrate");
+                const fx = document.createElement("img"); fx.src = eType.atk; fx.className = "special-fx";
+                document.getElementById("pSide").appendChild(fx);
+                setTimeout(() => {
+                    document.getElementById("battleField").classList.remove("vibrate");
+                    fx.remove(); pHP -= dmg; eSP = 0;
+                    showDamage(dmg, "pSide"); updateUI(); if(pHP <= 0) endGame(false);
+                }, 800);
+            } else {
+                let dmg = Math.floor(Math.random() * 16) + 30; playSound(eType.sound);
+                document.getElementById("enemy").style.transform = "translateX(-40px)";
+                createFX(eType.atk, "p-left");
+                setTimeout(() => { 
+                    document.getElementById("enemy").style.transform = ""; 
+                    pHP -= dmg; eSP = Math.min(100, eSP + 25); 
+                    showDamage(dmg, "pSide"); updateUI(); if(pHP <= 0) endGame(false); 
+                }, 200);
+            }
         }
 
         function updateUI() {
-            const pBar = document.getElementById("pBar");
-            const eBar = document.getElementById("eBar");
-            pBar.style.width = Math.max(0, pHP) + "%";
-            eBar.style.width = Math.max(0, eHP) + "%";
+            pHP = Math.max(0, pHP); eHP = Math.max(0, eHP);
+            const pBar = document.getElementById("pBar"), eBar = document.getElementById("eBar");
+            const pPct = (pHP / MAX_HP) * 100, ePct = (eHP / MAX_HP) * 100;
+            pBar.style.width = pPct + "%"; eBar.style.width = ePct + "%";
+            [ [pBar, pPct], [eBar, ePct] ].forEach(([bar, pct]) => {
+                bar.className = 'health ' + (pct > 50 ? 'hp-green' : pct > 20 ? 'hp-yellow' : 'hp-red');
+            });
+            document.getElementById("pSP").style.width = pSP + "%";
+            document.getElementById("eSP").style.width = eSP + "%";
+            document.getElementById("btnEspecial").style.display = pSP >= 100 ? "block" : "none";
+            document.getElementById("btnAtacar").style.display = pSP >= 100 ? "none" : "block";
+            document.getElementById("pHPText").innerText = pHP;
+            document.getElementById("eHPText").innerText = eHP;
+        }
+
+        function endGame(v) {
+            gameActive = false; hasEnded = true; clearInterval(enemyTimer);
+            sounds.battle.pause(); playSound(v ? 'victoria' : 'derrota');
+            if(!v) document.getElementById("battleField").classList.add("grayscale");
             
-            pBar.style.background = pHP > 50 ? "#00ff00" : pHP > 25 ? "#ffff00" : "#ff0000";
-            eBar.style.background = eHP > 50 ? "#00ff00" : eHP > 25 ? "#ffff00" : "#ff0000";
-        }
-
-        function endGame(ganaste) {
-            gameActive = false; clearInterval(mewTimer);
-            bgBattle.pause();
-            const label = document.getElementById("resultLabel");
-            label.style.display = "block";
-
-            if (ganaste) {
-                sfxWin.play();
-                label.innerText = "VICTORIA";
-                label.style.color = "#FFCB05";
-                label.style.webkitTextStroke = "2px #b8860b";
-                lanzarConfeti();
-            } else {
-                sfxLose.play();
-                label.innerText = "GAME OVER";
-                label.style.color = "#ff0000";
-                label.style.webkitTextStroke = "2px #600";
-                document.body.classList.add("game-over-filter");
-            }
-
+            // Ocultar VS al terminar
+            document.getElementById("vsText").style.display = "none";
+            
             document.getElementById("btnAtacar").style.display = "none";
-            document.getElementById("btnRetry").style.display = "flex";
-            document.getElementById("btnInv").style.display = "flex";
-        }
-
-        function reiniciarJuego() {
-            localStorage.setItem('iniciarAudio', 'true');
-            location.reload();
-        }
-
-        function lanzarConfeti() {
-            for(let i=0; i<80; i++) {
-                const c = document.createElement("div");
-                c.className = "confeti";
-                c.style.left = Math.random() * 100 + "vw";
-                c.style.backgroundColor = ["#ff0","#f0f","#0ff","#f00","#0f0"][Math.floor(Math.random()*5)];
-                c.style.animationDuration = (Math.random() * 2 + 2) + "s";
-                document.body.appendChild(c);
-            }
+            document.getElementById("btnEspecial").style.display = "none";
+            document.getElementById("endControls").style.display = "flex";
+            const l = document.getElementById("resultLabel");
+            l.style.display = "block"; l.innerText = v ? "¡VICTORIA!" : "DERROTA";
+            l.style.color = v ? "#FFCB05" : "#f00";
+            if(v) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            setTimeout(() => { 
+                document.getElementById("retryBtn").classList.add("btn-ready"); 
+                document.getElementById("invBtn").classList.add("btn-ready"); 
+            }, 2000);
         }
     </script>
 </body>
