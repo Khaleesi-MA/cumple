@@ -175,8 +175,34 @@
             max-width: 320px; 
             margin-top: 10px;
         }
+		
+		/* PARPADEO BLANCO DE ELECCIÓN */
+		.selection-flash {
+			animation: flashWhite 0.25s infinite;
+		}
+
+		@keyframes flashWhite {
+			0% { filter: brightness(1); }
+			50% { filter: brightness(3); }
+			100% { filter: brightness(1); }
+		}
+
+		/* TRANSICIÓN PANTALLA NEGRA */
+		#transitionScreen {
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: black;
+			opacity: 0;
+			pointer-events: none;
+			z-index: 9999;
+			transition: opacity 2s ease;
+		}
     </style>
 </head>
+
 <body onclick="initIntro()">
 
     <h1 id="mainTitle">¡ELIGE TU POKÉMON!</h1>
@@ -234,8 +260,8 @@
             <button class="btn btn-atacar" id="btnAtacar" onclick="playerAttack(false)">ATACAR 👊</button>
             <button class="btn btn-especial" id="btnEspecial" onclick="playerAttack(true)">SUPER ESPECIAL 🔥</button>
             <div class="end-row" id="endControls">
-                <button id="retryBtn" class="btn btn-retry" onclick="location.reload()">JUGAR DE NUEVO</button>
-                <a id="invBtn" href="invitacion.html" class="btn btn-inv" onclick="localStorage.setItem('playAudio', 'true')">
+                <button id="retryBtn" class="btn btn-retry" onclick="resetGame()">JUGAR DE NUEVO</button>
+                <a id="invBtn" href="invitacion.html" class="btn btn-inv" onclick="localStorage.setItem('playVideo', 'true')">
                     VER INVITACIÓN 💌
                 </a>
             </div>
@@ -268,8 +294,10 @@
         }, false);
 
         const MAX_HP = 500; 
+		
         let pHP = MAX_HP, eHP = MAX_HP, pSP = 0, eSP = 0, pType = "", eType = "", gameActive = false, hasEnded = false, enemyTimer;
-
+		let isSelecting = false; // 🔒 bloquea selección múltiple
+		
         const bosses = [
             { name: "CHARIZARD", id: 6, sound: "fuego", atk: "ataque_fuego.png" },
             { name: "GENGAR", id: 94, sound: "psiquico", atk: "ataque_psiquico.png" },
@@ -278,6 +306,8 @@
         ];
 
         const sounds = {
+		
+			select: new Audio('select.mp3'),
             intro: new Audio('intro.mp3'), battle: new Audio('batalla.mp3'), especial: new Audio('especial.mp3'),
             victoria: new Audio('victoria.mp3'), derrota: new Audio('derrota.mp3'),
             pikachu: new Audio('pika.mp3'), fuego: new Audio('fuego.mp3'), agua: new Audio('agua.mp3'),
@@ -286,11 +316,21 @@
 
         const playerAtks = { pikachu: 'ataque_electrico.png', charmander: 'ataque_fuego.png', squirtle: 'ataque_agua.png', bulbasaur: 'ataque_hoja.png' };
 
-        window.onload = () => {
-            if (localStorage.getItem('iniciarAudio') === 'true') {
-                initIntro(); localStorage.removeItem('iniciarAudio');
-            }
-        };
+
+        // Añade esto al final de tu script o dentro de window.onload
+		window.onload = () => {
+			if (localStorage.getItem('iniciarAudio') === 'true') {
+				// Limpiamos la marca para que no suene siempre al recargar
+				localStorage.removeItem('iniciarAudio'); 
+				
+				// Ejecutamos la intro
+				sounds.intro.loop = true;
+				sounds.intro.play().catch(e => {
+					console.log("El navegador aún requiere un clic extra en esta página.");
+				});
+			}
+		};
+		
 
         function playSound(name) { if(sounds[name]) { sounds[name].pause(); sounds[name].currentTime = 0; sounds[name].play().catch(()=>{}); } }
 
@@ -299,31 +339,76 @@
         }
 
         function startGame(choice, bg) {
-            pType = choice; gameActive = true;
-            sounds.intro.pause(); sounds.battle.loop = true; sounds.battle.play();
-            document.body.style.background = bg;
-            document.getElementById("selectScreen").style.display = "none";
-            document.getElementById("mainTitle").style.display = "none";
-            document.getElementById("battleTitle").style.display = "block";
-            document.getElementById("game").style.display = "block";
-            
-            // Mostrar el VS al empezar
-            document.getElementById("vsText").style.display = "block";
-            
-            const boss = bosses[Math.floor(Math.random() * bosses.length)];
-            eType = boss;
+			
+			if (isSelecting) return; // 🔥 evita doble selección
+			isSelecting = true;
+			document.getElementById("selectScreen").style.pointerEvents = "none";
+	
+			pType = choice;
+			gameActive = false;
 
-            const pIds = { pikachu: 25, charmander: 4, squirtle: 7, bulbasaur: 1 };
-            document.getElementById("pName").innerText = choice.toUpperCase();
-            document.getElementById("player").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pIds[choice]}.png`;
-            document.getElementById("pIcon").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pIds[choice]}.png`;
-            
-            document.getElementById("eName").innerText = boss.name;
-            document.getElementById("enemy").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${boss.id}.png`;
-            document.getElementById("eIcon").src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${boss.id}.png`;
+			const selectedCard = event.currentTarget;
+			const transition = document.getElementById("transitionScreen");
 
-            updateUI(); enemyTimer = setInterval(enemyAttack, 1100);
-        }
+			// 🔊 Sonido de selección
+			playSound('select');
+
+			// ✨ Parpadeo blanco
+			selectedCard.classList.add("selection-flash");
+
+			// Esperar 2.5 segundos de efecto
+			setTimeout(() => {
+
+				selectedCard.classList.remove("selection-flash");
+
+				// 🎬 Activar pantalla negra
+				transition.style.opacity = "1";
+
+				// Esperar 2 segundos de transición
+				setTimeout(() => {
+
+					sounds.intro.pause();
+					sounds.battle.loop = true;
+					sounds.battle.play();
+
+					gameActive = true;
+
+					document.body.style.background = bg;
+					document.getElementById("selectScreen").style.display = "none";
+					document.getElementById("mainTitle").style.display = "none";
+					document.getElementById("battleTitle").style.display = "block";
+					document.getElementById("game").style.display = "block";
+					document.getElementById("vsText").style.display = "block";
+
+					const boss = bosses[Math.floor(Math.random() * bosses.length)];
+					eType = boss;
+
+					const pIds = { pikachu: 25, charmander: 4, squirtle: 7, bulbasaur: 1 };
+
+					document.getElementById("pName").innerText = choice.toUpperCase();
+					document.getElementById("player").src =
+						`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pIds[choice]}.png`;
+					document.getElementById("pIcon").src =
+						`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pIds[choice]}.png`;
+
+					document.getElementById("eName").innerText = boss.name;
+					document.getElementById("enemy").src =
+						`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${boss.id}.png`;
+					document.getElementById("eIcon").src =
+						`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${boss.id}.png`;
+
+					updateUI();
+					enemyTimer = setInterval(enemyAttack, 1300);
+
+					// 🔥 Quitar pantalla negra
+					setTimeout(() => {
+						transition.style.opacity = "0";
+					}, 100);
+
+				}, 2000); // duración transición negra
+
+			}, 2500); // duración parpadeo
+		}
 
         function createFX(url, anim, isPikachu = false) {
             const img = document.createElement("img");
@@ -349,18 +434,32 @@
                 document.getElementById("battleField").classList.add("vibrate");
                 const fx = document.createElement("img"); fx.src = playerAtks[pType]; fx.className = "special-fx";
                 document.getElementById("eSide").appendChild(fx);
+				
                 setTimeout(() => { 
+					if (!gameActive || hasEnded) return; // 🔥 IMPORTANTE
                     document.getElementById("battleField").classList.remove("vibrate");
-                    fx.remove(); eHP -= dmg; pSP = 0; showDamage(dmg, "eSide"); updateUI(); if(eHP <= 0) endGame(true);
+					
+                    fx.remove(); 
+					eHP -= dmg; 
+					pSP = 0; 
+					showDamage(dmg, "eSide"); 
+					updateUI(); 
+					if(eHP <= 0) endGame(true);
                 }, 800);
             } else {
                 playSound(pType === 'pikachu' ? 'pikachu' : pType === 'charmander' ? 'fuego' : pType === 'squirtle' ? 'agua' : 'hoja');
                 document.getElementById("player").style.transform = "translateX(40px)";
                 createFX(playerAtks[pType], "p-right", pType === 'pikachu');
+				
                 setTimeout(() => { 
+					if (!gameActive || hasEnded) return; // 🔥 ESTA LÍNEA ES LA CLAVE
                     document.getElementById("player").style.transform = ""; 
-                    eHP -= dmg; pSP = Math.min(100, pSP + 25); 
-                    showDamage(dmg, "eSide"); updateUI(); if(eHP <= 0) endGame(true); 
+					
+                    eHP -= dmg; 
+					pSP = Math.min(100, pSP + 25); 
+                    showDamage(dmg, "eSide"); 
+					updateUI(); 
+					if(eHP <= 0) endGame(true); 
                 }, 200);
             }
         }
@@ -373,18 +472,29 @@
                 const fx = document.createElement("img"); fx.src = eType.atk; fx.className = "special-fx";
                 document.getElementById("pSide").appendChild(fx);
                 setTimeout(() => {
+					if (!gameActive || hasEnded) return;
                     document.getElementById("battleField").classList.remove("vibrate");
-                    fx.remove(); pHP -= dmg; eSP = 0;
-                    showDamage(dmg, "pSide"); updateUI(); if(pHP <= 0) endGame(false);
+					
+                    fx.remove(); 
+					pHP -= dmg; 
+					eSP = 0;
+                    showDamage(dmg, "pSide"); 
+					updateUI(); 
+					if(pHP <= 0) endGame(false);
                 }, 800);
             } else {
                 let dmg = Math.floor(Math.random() * 16) + 30; playSound(eType.sound);
                 document.getElementById("enemy").style.transform = "translateX(-40px)";
                 createFX(eType.atk, "p-left");
                 setTimeout(() => { 
-                    document.getElementById("enemy").style.transform = ""; 
-                    pHP -= dmg; eSP = Math.min(100, eSP + 25); 
-                    showDamage(dmg, "pSide"); updateUI(); if(pHP <= 0) endGame(false); 
+					if (!gameActive || hasEnded) return;
+                    document.getElementById("enemy").style.transform = "";
+					
+                    pHP -= dmg; 
+					eSP = Math.min(100, eSP + 25); 
+                    showDamage(dmg, "pSide"); 
+					updateUI(); 
+					if(pHP <= 0) endGame(false); 
                 }, 200);
             }
         }
@@ -406,8 +516,14 @@
         }
 
         function endGame(v) {
-            gameActive = false; hasEnded = true; clearInterval(enemyTimer);
-            sounds.battle.pause(); playSound(v ? 'victoria' : 'derrota');
+            gameActive = false; 
+			hasEnded = true; 
+			clearInterval(enemyTimer);
+			enemyTimer = null;
+
+            sounds.battle.pause(); 
+			playSound(v ? 'victoria' : 'derrota');
+			
             if(!v) document.getElementById("battleField").classList.add("grayscale");
             
             // Ocultar VS al terminar
@@ -416,15 +532,66 @@
             document.getElementById("btnAtacar").style.display = "none";
             document.getElementById("btnEspecial").style.display = "none";
             document.getElementById("endControls").style.display = "flex";
+			
             const l = document.getElementById("resultLabel");
             l.style.display = "block"; l.innerText = v ? "¡VICTORIA!" : "DERROTA";
             l.style.color = v ? "#FFCB05" : "#f00";
             if(v) confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+			
             setTimeout(() => { 
                 document.getElementById("retryBtn").classList.add("btn-ready"); 
                 document.getElementById("invBtn").classList.add("btn-ready"); 
             }, 2000);
         }
+		
+		function resetGame() {
+
+			// 1. Reiniciar variables
+			pHP = MAX_HP; 
+			eHP = MAX_HP; 
+			pSP = 0; 
+			eSP = 0;
+			gameActive = false; 
+			hasEnded = false;
+
+			clearInterval(enemyTimer);
+
+			// 2. Reset completo de botones 🔥
+			const retryBtn = document.getElementById("retryBtn");
+			const invBtn = document.getElementById("invBtn");
+
+			retryBtn.classList.remove("btn-ready");
+			invBtn.classList.remove("btn-ready");
+
+			retryBtn.style.pointerEvents = "none";
+			invBtn.style.pointerEvents = "none";
+
+			// 3. Control estricto de Audio
+			Object.values(sounds).forEach(s => { 
+				s.pause(); 
+				s.currentTime = 0; 
+			});
+
+			sounds.intro.loop = true;
+			sounds.intro.play();
+
+			// 4. Reset de Interfaz
+			document.getElementById("game").style.display = "none";
+			document.getElementById("battleTitle").style.display = "none";
+			document.getElementById("resultLabel").style.display = "none";
+			document.getElementById("endControls").style.display = "none";
+			document.getElementById("selectScreen").style.display = "grid";
+			document.getElementById("mainTitle").style.display = "block";
+			document.getElementById("battleField").classList.remove("grayscale");
+			document.body.style.background = "#050505";
+
+			updateUI();
+			
+			isSelecting = false;
+			document.getElementById("selectScreen").style.pointerEvents = "auto";
+		}
+
     </script>
+<div id="transitionScreen"></div>
 </body>
 </html>
