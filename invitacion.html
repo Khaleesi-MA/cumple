@@ -430,12 +430,34 @@ button:hover{
   100%{ transform:translateY(0); }
 }
 
-.sound-msg{
-  position:fixed;
-  bottom:15px;
-  width:100%;
-  font-size:14px;
-  color:#ccc;
+.sound-msg {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+
+    font-size: 18px;
+    font-weight: 900;
+    white-space: nowrap; /* fuerza una sola línea */
+
+    color: #000; /* negro más sólido */
+    -webkit-text-stroke: 0.6px white; /* borde blanco más fino */
+    text-shadow:
+        0.5px 0.5px 0 white,
+        -0.5px -0.5px 0 white;
+
+    background: rgba(255,255,255,0.10);
+    padding: 6px 14px;
+    border-radius: 8px;
+
+    animation: parpadeo 1.2s infinite;
+}
+
+@keyframes parpadeo {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
 }
 
 
@@ -676,8 +698,8 @@ button:hover{
 <img src="globo3.png" class="globo globo3">
 <img src="globo4.png" class="globo globo4">
 
-<div class="sound-msg">
-Toca la pantalla para activar el sonido 🔊
+<div class="sound-msg" id="soundMsg">
+  🔊 TOCA LA PANTALLA PARA ACTIVAR SONIDO
 </div>
 
 <script>
@@ -716,26 +738,26 @@ window.addEventListener('load', () => {
 
 function activarSonido() {
     const video = document.getElementById("bgVideo");
+    const mensaje = document.getElementById("soundMsg");
 
-	document.querySelector(".sound-msg").style.display = "none";
-	
+    if (!video.muted) return;
+
     video.muted = false;
     video.volume = 1;
 
-    const playPromise = video.play();
+    video.play().then(() => {
+        console.log("Audio activado");
+    }).catch(err => {
+        console.log("Error:", err);
+    });
 
-    if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            console.log("El navegador bloqueó el audio");
-        });
-    }
+    // Desaparecer mensaje
+    mensaje.style.display = "none";
 
     document.removeEventListener("click", activarSonido);
-    document.removeEventListener("touchstart", activarSonido);
 }
 
 document.addEventListener("click", activarSonido);
-document.addEventListener("touchstart", activarSonido);
 
 
 function abrirMapa(){ window.open("https://maps.app.goo.gl/mqubnNRNoTTxeWsx8"); } // Corregí el link de ejemplo
