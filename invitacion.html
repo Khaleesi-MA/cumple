@@ -68,7 +68,7 @@ body::before{
   height:auto;
   margin-left: -100px;  /* prueba -20, -30, -50 */
 
-  transform: translateY(-145px); 
+  transform: translateY(-155px); 
   
 }
 
@@ -704,33 +704,38 @@ setInterval(() => {
 }, 1000);
 
 window.addEventListener('load', () => {
-    // Buscamos el video o audio por su ID (ajusta 'bgVideo' al ID que uses)
-    const media = document.getElementById("bgVideo") || document.getElementById("musicaFondo");
+    const video = document.getElementById("bgVideo");
     
-    // Si el usuario viene de hacer clic en el botón del juego
-    if (localStorage.getItem('playAudio') === 'true') {
-        if (media) {
-            media.muted = false; // Quitamos el silencio
-            media.play().catch(error => {
-                console.log("El navegador bloqueó el autoplay");
+    // Si venimos desde el botón de index.html
+    if (localStorage.getItem('playVideo') === 'true') {
+        video.muted = false; // Intentamos quitar el mute
+        
+        let playPromise = video.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                console.log("Reproducción automática iniciada");
+                localStorage.removeItem('forcePlay');
+            }).catch(error => {
+                // Si falla, dejamos el mensaje de "Toca para activar"
+                console.log("Autoplay bloqueado, esperando interacción");
             });
         }
-        // Limpiamos la señal
-        localStorage.removeItem('playAudio');
     }
 });
 
-// Respaldo: Si toca la pantalla, que suene sí o sí
-document.body.addEventListener("click", () => {
-    const media = document.getElementById("bgVideo") || document.getElementById("musicaFondo");
-    if (media) {
-        media.muted = false;
-        media.play();
+// ESTO ASEGURA QUE SI FALLA EL AUTOPLAY, AL PRIMER CLIC SUENE
+document.addEventListener("click", () => {
+    const video = document.getElementById("bgVideo");
+    if (video.paused) {
+        video.muted = false;
+        video.play();
     }
 }, { once: true });
 
-function abrirMapa(){ window.open("https://maps.app.goo.gl/mqubnNRNoTTxeWsx8"); }
+function abrirMapa(){ window.open("https://maps.app.goo.gl/mqubnNRNoTTxeWsx8"); } // Corregí el link de ejemplo
 function confirmar(){ window.open("https://wa.me/51930682789?text=Confirmo%20mi%20asistencia%20al%20cumpleaños%20de%20Khaleesi"); }
+
 
 // Generador de Confeti
 for(let i=0; i<40; i++){
@@ -747,5 +752,4 @@ for(let i=0; i<40; i++){
 </body>
 
 </html>
-
 
