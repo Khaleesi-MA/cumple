@@ -677,7 +677,7 @@ button:hover{
 <img src="globo4.png" class="globo globo4">
 
 <div class="sound-msg">
-(Toca la pantalla para activar el sonido 🔊)
+Toca la pantalla para activar el sonido 🔊
 </div>
 
 <script>
@@ -703,35 +703,27 @@ setInterval(() => {
     document.getElementById("s2").textContent = pad(seconds)[1];
 }, 1000);
 
+
 window.addEventListener('load', () => {
     const video = document.getElementById("bgVideo");
-    
-    // Si venimos desde el botón de index.html
-    if (localStorage.getItem('playVideo') === 'true') {
-        video.muted = false; // Intentamos quitar el mute
-        
-        let playPromise = video.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                console.log("Reproducción automática iniciada");
-                localStorage.removeItem('forcePlay');
-            }).catch(error => {
-                // Si falla, dejamos el mensaje de "Toca para activar"
-                console.log("Autoplay bloqueado, esperando interacción");
-            });
-        }
-    }
+
+    // Siempre iniciar en muted (obligatorio para iPhone)
+    video.muted = true;
+    video.play().catch(() => {
+        console.log("Autoplay bloqueado");
+    });
 });
 
-// ESTO ASEGURA QUE SI FALLA EL AUTOPLAY, AL PRIMER CLIC SUENE
+// Cuando el usuario toca la pantalla, activamos sonido
 document.addEventListener("click", () => {
     const video = document.getElementById("bgVideo");
-    if (video.paused) {
+
+    if (video.muted) {
         video.muted = false;
         video.play();
     }
 }, { once: true });
+
 
 function abrirMapa(){ window.open("https://maps.app.goo.gl/mqubnNRNoTTxeWsx8"); } // Corregí el link de ejemplo
 function confirmar(){ window.open("https://wa.me/51930682789?text=Confirmo%20mi%20asistencia%20al%20cumpleaños%20de%20Khaleesi"); }
@@ -752,4 +744,3 @@ for(let i=0; i<40; i++){
 </body>
 
 </html>
-
