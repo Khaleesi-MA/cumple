@@ -209,16 +209,16 @@
     <h1 id="battleTitle" style="display:none;">BATALLA POKÉMON</h1>
 
     <div id="selectScreen">
-        <div class="select-card card-pikachu" onclick="startGame('pikachu', '#1a1a00')">
+        <div class="select-card card-pikachu" onclick="startGame(event, 'pikachu', '#1a1a00')">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" width="70"><p>PIKACHU</p>
         </div>
-        <div class="select-card card-charmander" onclick="startGame('charmander', '#1a0500')">
+        <div class="select-card card-charmander" onclick="startGame(event, 'charmander', '#1a0500')">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" width="70"><p>CHARMANDER</p>
         </div>
-        <div class="select-card card-squirtle" onclick="startGame('squirtle', '#000d1a')">
+        <div class="select-card card-squirtle" onclick="startGame(event, 'squirtle', '#000d1a')">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" width="70"><p>SQUIRTLE</p>
         </div>
-        <div class="select-card card-bulbasaur" onclick="startGame('bulbasaur', '#051a00')">
+        <div class="select-card card-bulbasaur"  onclick="startGame(event, 'bulbasaur', '#051a00')">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" width="70"><p>BULBASAUR</p>
         </div>
     </div>
@@ -285,18 +285,29 @@
         }
         createStars();
 		
-		document.getElementById("btnAtacar").addEventListener("touchstart", function(e){
-			e.preventDefault();
+		const btnAtacar = document.getElementById("btnAtacar");
+
+		btnAtacar.addEventListener("click", () => {
 			playerAttack(false);
 		});
 
-        document.addEventListener('touchstart', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { paslastTouchEnd sive: false });
+		btnAtacar.addEventListener("touchstart", (e) => {
+			e.preventDefault();
+			playerAttack(false);
+		}, { passive: false });
+
+        document.addEventListener('touchstart', (e) => { 
+			if (e.touches.length > 1) e.preventDefault(); 
+		}, { passive: false });
+		
+		
         let lastTouchEnd = 0;
         document.addEventListener('touchend', (e) => {
             let now = Date.now();
             if (now - lastTouchEnd <= 120) e.preventDefault();
             lastTouchEnd = now;
         }, false);
+		
 
         const MAX_HP = 500; 
 		
@@ -343,33 +354,32 @@
             if(sounds.intro.paused && !gameActive && !hasEnded) { sounds.intro.loop = true; sounds.intro.play().catch(()=>{}); } 
         }
 
-        function startGame(choice, bg) {
-			
-			if (isSelecting) return; // 🔥 evita doble selección
+        function startGame(e, choice, bg) {
+
+			if (isSelecting) return;
 			isSelecting = true;
+
+			const selectedCard = e.currentTarget;
+			const transition = document.getElementById("transitionScreen");
+
 			document.getElementById("selectScreen").style.pointerEvents = "none";
-	
+
 			pType = choice;
 			gameActive = false;
 
-			const selectedCard = event.currentTarget;
-			const transition = document.getElementById("transitionScreen");
-
-			// 🔊 Sonido de selección
+			// 🔊 Sonido selección
 			playSound('select');
 
 			// ✨ Parpadeo blanco
 			selectedCard.classList.add("selection-flash");
 
-			// Esperar 2.5 segundos de efecto
 			setTimeout(() => {
 
 				selectedCard.classList.remove("selection-flash");
 
-				// 🎬 Activar pantalla negra
+				// 🎬 Pantalla negra
 				transition.style.opacity = "1";
 
-				// Esperar 2 segundos de transición
 				setTimeout(() => {
 
 					sounds.intro.pause();
@@ -405,14 +415,13 @@
 					updateUI();
 					enemyTimer = setInterval(enemyAttack, 1300);
 
-					// 🔥 Quitar pantalla negra
 					setTimeout(() => {
 						transition.style.opacity = "0";
 					}, 100);
 
-				}, 2000); // duración transición negra
+				}, 2000);
 
-			}, 2500); // duración parpadeo
+			}, 2500);
 		}
 
         function createFX(url, anim, isPikachu = false) {
