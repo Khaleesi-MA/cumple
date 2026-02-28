@@ -714,15 +714,28 @@ window.addEventListener('load', () => {
     });
 });
 
-// Cuando el usuario toca la pantalla, activamos sonido
-document.addEventListener("click", () => {
+function activarSonido() {
     const video = document.getElementById("bgVideo");
 
-    if (video.muted) {
-        video.muted = false;
-        video.play();
+	document.querySelector(".sound-msg").style.display = "none";
+	
+    video.muted = false;
+    video.volume = 1;
+
+    const playPromise = video.play();
+
+    if (playPromise !== undefined) {
+        playPromise.catch(() => {
+            console.log("El navegador bloqueó el audio");
+        });
     }
-}, { once: true });
+
+    document.removeEventListener("click", activarSonido);
+    document.removeEventListener("touchstart", activarSonido);
+}
+
+document.addEventListener("click", activarSonido);
+document.addEventListener("touchstart", activarSonido);
 
 
 function abrirMapa(){ window.open("https://maps.app.goo.gl/mqubnNRNoTTxeWsx8"); } // Corregí el link de ejemplo
@@ -744,3 +757,4 @@ for(let i=0; i<40; i++){
 </body>
 
 </html>
+
