@@ -257,7 +257,7 @@
             </div>
         </div>
         <div class="controls">
-            <button class="btn btn-atacar" id="btnAtacar" onclick="playerAttack(false)">ATACAR 👊</button>
+            <button class="btn btn-atacar" id="btnAtacar">ATACAR 👊</button>
             <button class="btn btn-especial" id="btnEspecial" onclick="playerAttack(true)">SUPER ESPECIAL 🔥</button>
             <div class="end-row" id="endControls">
                 <button id="retryBtn" class="btn btn-retry" onclick="resetGame()">JUGAR DE NUEVO</button>
@@ -284,12 +284,17 @@
             }
         }
         createStars();
+		
+		document.getElementById("btnAtacar").addEventListener("touchstart", function(e){
+			e.preventDefault();
+			playerAttack(false);
+		});
 
-        document.addEventListener('touchstart', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+        document.addEventListener('touchstart', (e) => { if (e.touches.length > 1) e.preventDefault(); }, { paslastTouchEnd sive: false });
         let lastTouchEnd = 0;
         document.addEventListener('touchend', (e) => {
             let now = Date.now();
-            if (now - lastTouchEnd <= 300) e.preventDefault();
+            if (now - lastTouchEnd <= 120) e.preventDefault();
             lastTouchEnd = now;
         }, false);
 
