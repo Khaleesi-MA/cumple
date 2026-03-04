@@ -582,38 +582,43 @@ button:hover{
   font-size:48px;
   text-align:center;
   position:relative;
+  color:#ff2e93;
 
-  /* Degradado mágico */
-  background: linear-gradient(
-    90deg,
-    #ff1493,
-    #ff69b4,
-    #ffffff,
-    #ff69b4,
-    #ff1493
-  );
+  /* Escarcha alrededor */
+  text-shadow:
+    0 0 5px #ff9ad5,
+    0 0 10px #ff6ec7,
+    0 0 20px #ff3fb4,
+    0 0 35px #ff1fa6;
 
-  background-size: 300%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-
-  animation: brilloMagico 3s linear infinite,
-             latido 1.2s infinite;
+  animation: latido 1.2s infinite, brilloEscarcha 2.5s infinite alternate;
 }
 
-/* Movimiento del brillo */
-@keyframes brilloMagico{
-  0%{ background-position: 0%; }
-  100%{ background-position: 300%; }
-}
-
-/* Latido suave */
+/* Latido */
 @keyframes latido{
   0%{ transform: scale(1); }
-  30%{ transform: scale(1.08); }
+  30%{ transform: scale(1.07); }
   50%{ transform: scale(1); }
-  70%{ transform: scale(1.12); }
+  70%{ transform: scale(1.1); }
   100%{ transform: scale(1); }
+}
+
+/* Brillo escarcha animado */
+@keyframes brilloEscarcha{
+  from{
+    text-shadow:
+      0 0 5px #ff9ad5,
+      0 0 10px #ff6ec7,
+      0 0 20px #ff3fb4,
+      0 0 35px #ff1fa6;
+  }
+  to{
+    text-shadow:
+      0 0 8px #ffb3e6,
+      0 0 15px #ff8fd9,
+      0 0 25px #ff5fc8,
+      0 0 45px #ff2fb3;
+  }
 }
 
 .sparkles{
@@ -876,6 +881,7 @@ for(let i=0; i<40; i++){
 </body>
 
 </html>
+
 
 
 
